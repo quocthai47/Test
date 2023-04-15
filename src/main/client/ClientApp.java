@@ -67,7 +67,6 @@ public class ClientApp {
 
     private static long receiveAckFoundedFileAndFileSize(DataInputStream dis) throws IOException {
         boolean isFoundFile = dis.readBoolean();
-        System.out.println("isFoundFile" + isFoundFile);
         if (!isFoundFile) {
             String msg = dis.readUTF();
             throw new FileNotFoundException(msg);
