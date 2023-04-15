@@ -31,60 +31,57 @@ class SocketHandler implements Runnable {
     @Override
     public void run() {
         String receivedCommand;
-        outerloop:
-        while (true) {
-            try {
-                // Ask user what main.client wants
-                dos.writeUTF("Type the command\n" +
-                        "        - index: To list out all the available files\n" +
-                        "        - get <file-name>: To download the file-name file \n" +
-                        "        - quit/q: to exit the main.server");
 
+        try {
+            // Ask user what main.client wants
+            dos.writeUTF("Type the command\n" +
+                    "        - index: To list out all the available files\n" +
+                    "        - get <file-name>: To download the file-name file \n" +
+                    "        - quit/q: to exit the main.server");
+            outerloop:
+            while (true) {
                 receivedCommand = dis.readUTF();
                 ServerFileService serverFileService = new ServerFileService();
-                try {
-                    switch (CommandType.getCommand(receivedCommand)) {
-                        case QUIT:
-                        case Q:
-                            new QuitCommand().process();
-                            log.info("client " + this.socket + " sends exit");
-                            log.info("Closing this connection");
-                            this.socket.close();
-                            log.info(" Socket connection closed");
-                            break outerloop;
+                switch (CommandType.getCommand(receivedCommand)) {
+                    case QUIT:
+                    case Q:
+                        new QuitCommand().process();
+                        log.info("client " + this.socket + " sends exit");
+                        log.info("Closing this connection");
+                        this.socket.close();
+                        log.info(" Socket connection closed");
+                        break outerloop;
 
-                        case INDEX:
-                            new IndexCommand(dos, serverFileService).process();
-                            break;
+                    case INDEX:
+                        new IndexCommand(dos, serverFileService).process();
+                        break;
 
-                        case GET:
+                    case GET:
+                        try {
                             String fileNames = receivedCommand.substring(receivedCommand.indexOf(' '), receivedCommand.length());
                             new GetCommand(dos, serverFileService, fileNames).process();
                             dis.readInt();
                             break;
-                    }
-                } catch (IllegalArgumentException ex) {
-                    dos.writeUTF("Unknown command");
-                }
+                        } catch (FileNotFoundException e) {
+                            try {
+                                String msg = e.getMessage();
+                                log.log(Level.SEVERE, msg);
 
-            } catch (SocketException e) {
-                log.info("Client closed connection !");
-                break;
-            } catch (FileNotFoundException e) {
-                try {
-                    String msg = e.getMessage();
-                    log.log(Level.SEVERE, msg);
-
-                    dos.writeBoolean(Boolean.FALSE);
-                    dos.writeUTF(msg);
-                } catch (IOException ex) {
-                    closeResources();
+                                dos.writeBoolean(Boolean.FALSE);
+                                dos.writeUTF(msg);
+                            } catch (IOException ex) {
+                                closeResources();
+                            }
+                        }
                 }
-            } catch (IOException e) {
-                closeResources();
             }
+        } catch (IllegalArgumentException e) {
+            log.warning("Unknown command");
+        } catch (SocketException e) {
+            log.info("Client closed connection !");
+        } catch (IOException e) {
+            closeResources();
         }
-        closeResources();
     }
 
     private void closeResources() {

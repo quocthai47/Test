@@ -14,15 +14,17 @@ import java.util.zip.ZipOutputStream;
 
 public class ServerFileService {
     private static Logger log = Logger.getLogger(ServerFileService.class.getName());
-    private final String fileDirectory = "files";
+    private final String fileSystemDirectory = "files";
     private final String tempDirectory = "temp";
-    private final String tempFileName = "compressed";
-    private final String zipExtension = ".zip";
+    private final String tempFileName = "compressed.zip";
 
-    public StringBuffer listFiles(File[] files) {
+    public File[] listFiles() {
+        return new File(fileSystemDirectory).listFiles();
+    }
+
+    public String formatFilesToString(File[] files) {
         StringBuffer sb = new StringBuffer();
         int k = 0;
-
         sb.append("\n        +---------+----------------------+\n");
         Formatter formatter = new Formatter(sb, Locale.US);
         formatter.format("        | %-7s | %-20s |\n", "Sr No", "Filename");
@@ -35,7 +37,7 @@ public class ServerFileService {
 
         sb.append("        +---------+----------------------+\n\n        ");
         formatter.close();
-        return sb;
+        return sb.toString();
     }
 
     public String zipFiles(List<String> fileNames, String tempFilePath) throws IOException {
@@ -91,11 +93,10 @@ public class ServerFileService {
         bos.flush();
         bis.close();
         log.info("Successful sent file to main.client.");
-        Files.deleteIfExists(Paths.get(zipFilePath));
     }
 
     private String getFilePath(String fileName) {
-        return new StringBuffer(fileDirectory)
+        return new StringBuffer(fileSystemDirectory)
                 .append(File.separator)
                 .append(fileName)
                 .toString();
@@ -104,9 +105,8 @@ public class ServerFileService {
     public String getTempFilePath() {
         return new StringBuffer(tempDirectory)
                 .append(File.separator)
-                .append(tempFileName)
                 .append(ThreadLocalRandom.current().nextInt(1, 1000))
-                .append(zipExtension)
+                .append(tempFileName)
                 .toString();
     }
 }

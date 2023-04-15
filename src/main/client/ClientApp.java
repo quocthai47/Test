@@ -18,14 +18,15 @@ public class ClientApp {
 
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-
+            String firstMsgFromServer = dis.readUTF();
             outerloop:
             while (true) {
-                System.out.println(dis.readUTF());
-                String tosend = scn.nextLine();
-                dos.writeUTF(tosend);
                 try {
-                    switch (CommandType.getCommand(tosend)) {
+                    System.out.println(firstMsgFromServer);
+                    String tosend = scn.nextLine();
+                    CommandType command = CommandType.getCommand(tosend);
+                    dos.writeUTF(tosend);
+                    switch (command) {
                         case QUIT:
                         case Q:
                             System.out.println("Closing this connection : " + socket);
@@ -35,26 +36,22 @@ public class ClientApp {
                         case INDEX:
                             String received = dis.readUTF();
                             System.out.println(received);
-                            break ;
+                            break;
                         case GET:
-                            try {
-                                ClientFileService fileService = new ClientFileService();
-                                long fileSize = receiveAckFoundedFileAndFileSize(dis);
+                            ClientFileService fileService = new ClientFileService();
+                            long fileSize = receiveAckFoundedFileAndFileSize(dis);
 
-                                String tempZipFileName = fileService.receiveFile(dis, fileSize);
+                            String tempZipFileName = fileService.receiveFile(dis, fileSize);
 
-                                sendAckReceivedFile(dos);
+                            sendAckReceivedFile(dos);
 
-                                fileService.unzip(tempZipFileName);
-                                break;
-
-                            } catch (FileNotFoundException e) {
-                                System.out.println(e.getMessage());
-                            }
-
+                            fileService.unzip(tempZipFileName);
+                            break;
                     }
                 } catch (IllegalArgumentException ex) {
-                    //Maybe the new command in main.server
+                    System.out.println("The unknown command which is not supported by server");
+                } catch (FileNotFoundException e) {
+                    System.out.println(e.getMessage());
                 }
             }
 
@@ -63,12 +60,14 @@ public class ClientApp {
             dis.close();
             dos.close();
         } catch (Exception e) {
+            System.out.println("The connection has been lost. attempting to reconnect to your connection !");
             e.printStackTrace();
         }
     }
 
     private static long receiveAckFoundedFileAndFileSize(DataInputStream dis) throws IOException {
         boolean isFoundFile = dis.readBoolean();
+        System.out.println("isFoundFile" + isFoundFile);
         if (!isFoundFile) {
             String msg = dis.readUTF();
             throw new FileNotFoundException(msg);

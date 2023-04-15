@@ -12,28 +12,31 @@ public class ClientFileService {
     private static final String downloadDirectory = "download";
 
     public String receiveFile(DataInputStream dis, long fileSize) throws IOException {
-        System.out.println("Starting download file \n");
+        File file = null;
+        try {
+            System.out.println("Starting download file \n");
+            int bytesRead = 0, current = 0;
+            byte[] byteArray = new byte[(int) fileSize];
+            BufferedInputStream bis = new BufferedInputStream(dis);
+            bytesRead = bis.read(byteArray, 0, byteArray.length);
+            current = bytesRead;
 
-        int bytesRead = 0, current = 0;
-        byte[] byteArray = new byte[(int) fileSize];
-        BufferedInputStream bis = new BufferedInputStream(dis);
-        bytesRead = bis.read(byteArray, 0, byteArray.length);
-        current = bytesRead;
+            do {
+                float percent = (current * 100L) / byteArray.length;
+                System.out.println("Downloading Percent : " + percent + "%");
+                bytesRead = bis.read(byteArray, current, (byteArray.length - current));
+                if (bytesRead >= 0) current += bytesRead;
+            } while (bytesRead > 0);
 
-        do {
-            bytesRead = bis.read(byteArray, current, (byteArray.length - current));
-            if (bytesRead >= 0) current += bytesRead;
-            float percent = (current * 100L) / byteArray.length;
-            System.out.println("Downloading Percent : " + percent + "%");
-        } while (bytesRead > 0);
-
-        File file = createTempZipFile();
-
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-        bos.write(byteArray, 0, current);
-        bos.close();
-
-        System.out.println("Files Successfully Downloaded!");
+            file = createTempZipFile();
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+            bos.write(byteArray, 0, current);
+            bos.close();
+            System.out.println("Files Successfully Downloaded!");
+        } catch (IOException e) {
+            Files.deleteIfExists(Paths.get(file.getPath()));
+            throw e;
+        }
         return file.getName();
     }
 
@@ -55,8 +58,9 @@ public class ClientFileService {
             }
         } catch (EOFException e) {
             zipIn.close();
+        } finally {
+            Files.deleteIfExists(Paths.get(zipFilePath));
         }
-        Files.deleteIfExists(Paths.get(zipFilePath));
     }
 
     public void extractFile(ZipInputStream zipIn, String filePath) throws IOException {

@@ -10,9 +10,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 public class GetCommand implements Command {
-    private String fileNames;
     private DataOutputStream dos;
     private ServerFileService serverFileService;
+    private String fileNames;
     private String tempFilePath;
 
     public GetCommand(DataOutputStream dos, ServerFileService serverFileService, String fileNames) {
@@ -29,9 +29,8 @@ public class GetCommand implements Command {
             sendAckFoundFile();
             sendFileSize();
             serverFileService.sendFiles(dos, zipFilePath);
-        } catch (SocketException ex) {
+        } finally {
             Files.deleteIfExists(Paths.get(tempFilePath));
-            throw ex;
         }
     }
 
