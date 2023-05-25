@@ -1,4 +1,4 @@
-package main.server;
+package com.td.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -57,5 +57,4 @@ public class ServerDispatcher {
             h.setFormatter(myFormatter);
         }
     }
-
 }

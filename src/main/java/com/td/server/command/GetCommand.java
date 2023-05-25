@@ -1,10 +1,10 @@
-package main.server.command;
+package com.td.server.command;
 
-import main.server.ServerFileService;
+
+import com.td.server.services.ServerFileService;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -33,13 +33,14 @@ public class GetCommand implements Command {
             Files.deleteIfExists(Paths.get(tempFilePath));
         }
     }
+    private void sendFileSize() throws IOException {
+        dos.writeLong(serverFileService.getFileSize(tempFilePath));
+    }
 
     private void sendAckFoundFile() throws IOException {
         dos.writeBoolean(Boolean.TRUE);
     }
 
-    private void sendFileSize() throws IOException {
-        dos.writeLong(Files.size(Paths.get(tempFilePath)));
-    }
+
 
 }

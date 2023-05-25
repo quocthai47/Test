@@ -1,6 +1,7 @@
-package main.server.command;
+package com.td.server.command;
 
-import main.server.ServerFileService;
+
+import com.td.server.services.ServerFileService;
 
 import java.io.DataOutputStream;
 import java.io.File;

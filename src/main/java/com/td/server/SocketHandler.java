@@ -1,9 +1,12 @@
-package main.server;
+package com.td.server;
 
-import main.common.CommandType;
-import main.server.command.GetCommand;
-import main.server.command.IndexCommand;
-import main.server.command.QuitCommand;
+
+import com.td.common.CommandType;
+import com.td.server.command.GetCommand;
+import com.td.server.command.IndexCommand;
+import com.td.server.command.QuitCommand;
+import com.td.server.configuration.FileConfiguration;
+import com.td.server.services.ServerFileService;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,6 +16,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.td.server.configuration.FileConfiguration.FILE_SYSTEM_DIRECTORY;
 
 
 class SocketHandler implements Runnable {
@@ -41,15 +46,11 @@ class SocketHandler implements Runnable {
             outerloop:
             while (true) {
                 receivedCommand = dis.readUTF();
-                ServerFileService serverFileService = new ServerFileService();
+                ServerFileService serverFileService = new ServerFileService(FILE_SYSTEM_DIRECTORY);
                 switch (CommandType.getCommand(receivedCommand)) {
                     case QUIT:
                     case Q:
-                        new QuitCommand().process();
-                        log.info("client " + this.socket + " sends exit");
-                        log.info("Closing this connection");
-                        this.socket.close();
-                        log.info(" Socket connection closed");
+                        new QuitCommand(socket).process();
                         break outerloop;
 
                     case INDEX:
@@ -59,6 +60,7 @@ class SocketHandler implements Runnable {
                     case GET:
                         try {
                             String fileNames = receivedCommand.substring(receivedCommand.indexOf(' '), receivedCommand.length());
+
                             new GetCommand(dos, serverFileService, fileNames).process();
                             dis.readInt();
                             break;
@@ -66,7 +68,6 @@ class SocketHandler implements Runnable {
                             try {
                                 String msg = e.getMessage();
                                 log.log(Level.SEVERE, msg);
-
                                 dos.writeBoolean(Boolean.FALSE);
                                 dos.writeUTF(msg);
                             } catch (IOException ex) {
@@ -80,6 +81,7 @@ class SocketHandler implements Runnable {
         } catch (SocketException e) {
             log.info("Client closed connection !");
         } catch (IOException e) {
+            e.printStackTrace();
             closeResources();
         }
     }

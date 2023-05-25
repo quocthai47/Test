@@ -1,4 +1,4 @@
-package main.server;
+package com.td.server.services;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -12,11 +12,17 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.td.server.configuration.FileConfiguration.BUFFER_SIZE;
+import static com.td.server.configuration.FileConfiguration.TEMP_DIRECTORY;
+
 public class ServerFileService {
     private static Logger log = Logger.getLogger(ServerFileService.class.getName());
-    private final String fileSystemDirectory = "files";
-    private final String tempDirectory = "temp";
     private final String tempFileName = "compressed.zip";
+    private String fileSystemDirectory;
+
+    public ServerFileService(String fileSystemDirectory) {
+        this.fileSystemDirectory = fileSystemDirectory;
+    }
 
     public File[] listFiles() {
         return new File(fileSystemDirectory).listFiles();
@@ -41,7 +47,7 @@ public class ServerFileService {
     }
 
     public String zipFiles(List<String> fileNames, String tempFilePath) throws IOException {
-        File tempDir = new File(tempDirectory);
+        File tempDir = new File(TEMP_DIRECTORY);
         if (!tempDir.exists()) {
             tempDir.mkdir();
         }
@@ -63,36 +69,51 @@ public class ServerFileService {
                 while ((length = fis.read(bytes)) >= 0) {
                     zipOut.write(bytes, 0, length);
                 }
-
-                zipOut.closeEntry();
                 fis.close();
-                zipOut.close();
+
             } catch (FileNotFoundException e) {
                 String msg = "File " + fName + " Not Found! \n  ";
                 Files.deleteIfExists(Paths.get(tempFilePath));
                 log.log(Level.SEVERE, msg);
                 throw new FileNotFoundException(msg);
+            } finally {
+                zipOut.closeEntry();
             }
-
         }
+
+        zipOut.close();
         return tempFilePath;
     }
 
     public void sendFiles(DataOutputStream dos, String zipFilePath) throws IOException {
-        log.info("Sending file to main.client.");
-        File file = new File(zipFilePath);
-        byte[] byteArray = new byte[(int) file.length()];
-
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+        log.info("Sending file to client");
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(zipFilePath));
         BufferedOutputStream bos = new BufferedOutputStream(dos);
-        int count;
-        while ((count = bis.read(byteArray)) != -1) {
-            bos.write(byteArray, 0, count);
-        }
 
-        bos.flush();
-        bis.close();
-        log.info("Successful sent file to main.client.");
+        byte[] buffer = new byte[BUFFER_SIZE];
+        try {
+            int numBytes;
+            while ((numBytes = bis.read(buffer)) != -1) {
+                bos.write(buffer, 0, numBytes);
+            }
+
+        } finally {
+            bos.flush();
+            bis.close();
+        }
+        log.info("Successful sent file to client.");
+    }
+
+    public long getFileSize(String filePath) throws IOException {
+        return Files.size(Paths.get(filePath));
+    }
+
+    public String getTempFilePath() {
+        return new StringBuffer(TEMP_DIRECTORY)
+                .append(File.separator)
+                .append(ThreadLocalRandom.current().nextInt(1, 1000))
+                .append(tempFileName)
+                .toString();
     }
 
     private String getFilePath(String fileName) {
@@ -102,11 +123,4 @@ public class ServerFileService {
                 .toString();
     }
 
-    public String getTempFilePath() {
-        return new StringBuffer(tempDirectory)
-                .append(File.separator)
-                .append(ThreadLocalRandom.current().nextInt(1, 1000))
-                .append(tempFileName)
-                .toString();
-    }
 }

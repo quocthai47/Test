@@ -1,4 +1,4 @@
-package main.common;
+package com.td.common;
 
 public enum CommandType {
     QUIT,

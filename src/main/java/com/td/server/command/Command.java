@@ -1,4 +1,4 @@
-package main.server.command;
+package com.td.server.command;
 
 import java.io.IOException;
 

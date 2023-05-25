@@ -1,14 +1,16 @@
-package main.client;
+package com.td.client;
 
-import main.common.CommandType;
+
+import com.td.common.CommandType;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class ClientApp {
+import static com.td.client.Configuration.DOWNLOAD_DIRECTORY;
 
+public class ClientApp {
     public static void main(String[] args) {
         try {
             Scanner scn = new Scanner(System.in);
@@ -38,7 +40,7 @@ public class ClientApp {
                             System.out.println(received);
                             break;
                         case GET:
-                            ClientFileService fileService = new ClientFileService();
+                            ClientFileService fileService = new ClientFileService(DOWNLOAD_DIRECTORY);
                             long fileSize = receiveAckFoundedFileAndFileSize(dis);
 
                             String tempZipFileName = fileService.receiveFile(dis, fileSize);
