@@ -2,9 +2,7 @@ package com.td.server.command;
 
 import com.td.server.services.ServerFileService;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -12,7 +10,6 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class TestIndexCommand {
     private ServerFileService serverFileService = mock(ServerFileService.class);
     private DataOutputStream dos = mock(DataOutputStream.class, Mockito.RETURNS_DEEP_STUBS);

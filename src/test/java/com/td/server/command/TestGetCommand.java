@@ -2,8 +2,6 @@ package com.td.server.command;
 
 import com.td.server.services.ServerFileService;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,7 +11,6 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
 public class TestGetCommand {
     private ServerFileService serverFileService = mock(ServerFileService.class);
     private OutputStream out = mock(OutputStream.class);
