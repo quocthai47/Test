@@ -1,5 +1,11 @@
 # TD Question 2: Implement a File server & Download Manager (CLI)
 
+A. RUN THE TEST WITH GRADLE WRAPPER: 
+
+      ./gradlew check
+
+B. RUN THE APPLICATION
+
 1. Start server - ServerDispatcher
 2. Start client app - ClientApp
 
