@@ -9,7 +9,10 @@ import java.io.OutputStream;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TestGetCommand {
     private ServerFileService serverFileService = mock(ServerFileService.class);

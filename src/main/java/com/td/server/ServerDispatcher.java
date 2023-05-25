@@ -7,7 +7,13 @@ import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.*;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
+import static com.td.client.Configuration.PORT;
 
 public class ServerDispatcher {
     private static Logger log = Logger.getLogger(ServerDispatcher.class.getName());
@@ -15,7 +21,7 @@ public class ServerDispatcher {
 
     public static void main(String[] args) throws InterruptedException, IOException {
         loggingConfig();
-        ServerSocket serverSocket = new ServerSocket(5056);
+        ServerSocket serverSocket = new ServerSocket(PORT);
 
         while (true) {
             Socket socket = null;

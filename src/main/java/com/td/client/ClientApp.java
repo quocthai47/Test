@@ -3,7 +3,10 @@ package com.td.client;
 
 import com.td.common.CommandType;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;

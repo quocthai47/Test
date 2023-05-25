@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.Socket;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 
 public class TestQuitCommand {
     Socket socket = mock(Socket.class);

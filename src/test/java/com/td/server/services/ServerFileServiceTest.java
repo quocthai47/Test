@@ -1,13 +1,24 @@
 package com.td.server.services;
 
-import org.junit.jupiter.api.*;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Formatter;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -125,36 +136,18 @@ public class ServerFileServiceTest {
 
     }
 
-//    @Test
-//    public void testSendFiles() throws IOException {
-//        //given
-//        String path = "src/test/resources/files/1.pdf";
-//        FileOutputStream sentOutputStream = new FileOutputStream("sentOutputStream");
-//
-//        FileOutputStream receivedOutputStream = new FileOutputStream("receivedOutputStream");
-//        DataOutputStream dos = new DataOutputStream(receivedOutputStream);
-//
-//        //when
-//        service.sendFiles(dos, path);
-//
-//        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(path));
-//        BufferedOutputStream bos = new BufferedOutputStream(sentOutputStream);
-//
-//        byte[] buffer = new byte[BUFFER_SIZE];
-//        try {
-//            int numBytes;
-//            while ((numBytes = bis.read(buffer)) != -1) {
-//                bos.write(buffer, 0, numBytes);
-//            }
-//
-//        } finally {
-//            bos.flush();
-//            bis.close();
-//            bos.close();
-//        }
-//
-//        Assertions.assertEquals(receivedOutputStream.hashCode(), sentOutputStream.hashCode());
-//    }
+    @Test
+    public void testSendFiles() throws IOException {
+        //given
+        String path = "src/test/resources/files/2.pdf";
+
+        FileOutputStream receivedOutputStream = new FileOutputStream(path);
+        DataOutputStream dos = new DataOutputStream(receivedOutputStream);
+
+        //when
+        service.sendFiles(dos, path);
+        Files.deleteIfExists(Paths.get(path));
+    }
 
 
 }
